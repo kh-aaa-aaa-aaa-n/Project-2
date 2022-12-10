@@ -1,75 +1,169 @@
-# TODO: Put everything into a GUI once I figure out how to store/represent the nested dictionaries.
-# def main():
-spells = {'English': {
-                      'Warlock': {
-                                  'Cantrip': ('Eldritch Blast', 'Minor Illusion'), 
-                                  '1st Level': ('Illusory Script'), 
-                                  '2nd Level': ('Darkness')}, 
-                      'Wizard': {
-                                 'Cantrip': ('Friends'), 
-                                 '1st Level': ('Shield'), 
-                                 '2nd Level': ('Darkness')}}, 
-          'Latin': {
-                    'Warlock': {
-                                'Cantrip': ('Dryegnum Missilis', 'Parvus Illūsiō'), 
-                                '1st Level': ('Vānum Scrīptum'), 
-                                '2nd Level': ('Cālīgō')}, 
-                    'Wizard': {
-                               'Cantrip': ('Amīcī'), 
-                               '1st Level': ('Scūtum'), 
-                               '2nd Level': ('Cālīgō')}}}
+# I'm going to try to write the program with various different data storage varieties such as csv, SQL
+# database(s), and nested dictionaries. I'll probably go with the database once I figure it out as you
+# could more easily make changes and expand later on.
+#
+# Everything is also still in early prototype mode as much of the code is hardcoded rather than the actual
+# implementation I'm going for, so I'll fix that when I figure out how and un-hardcode the program.
+from tkinter import Tk, Frame, Label, Button, StringVar, Radiobutton, OptionMenu
 
-print('Choose a class:')
-print('_________________________')
-class_selection = input('Warlock - 0\nWizard - 1\nClass: ')
-while True:
-    if class_selection == '0' or class_selection == 'Warlock':
-        class_selection = 'Warlock'
-        break
-    elif class_selection == '1' or class_selection == 'Wizard':
-        class_selection = 'Wizard'
-        break
-    else:
-        class_selection = input('\nInvalid input. Choose one of the given options.\n')
+class DndEnLaSpellDict:  
+    """
+    Represents the details for a DndEnLaSpellDict object.
+    """
+    def __init__(self) -> None:
+        """
+        Constructor to initialize a DndEnLaSpellDict instance.
+        """
+        # TODO: Create an option where the user can ask for the translation of a specific spell.
+        
+        # Creates the main/root window
+        self.window = Tk()
+        self.window.title('English to Latin D&D Spell Dictionary')
+        self.window.geometry('375x175')
+        self.window.resizable(False, False)
+        
+        # Creates all the frames used inside the main window
+        self.title_frame = Frame(self.window)
+        self.selection_frame = Frame(self.window)
+        self.translation_frame = Frame(self.window)
+        
+        # Creates the label in title_frame
+        self.title_label = Label(self.title_frame, text = 'English to Latin D&D Spell Dictionary',
+                                 pady = 15)
+        
+        # Creates the label in translation_frame
+        self.translation_label = Label(self.translation_frame, pady = 10)
+        
+        # Creates the button in selection_frame
+        self.translate_button = Button(self.selection_frame, text = 'Translate',
+                                       command = self.clicked_translate)
+        
+        # TODO: Implement a reset button
+        # self.reset_button = Button(self.selection_frame, text = 'Reset')
+        # self.reset_button.grid()
+        
+        # Creates the radio buttons in selection_frame
+        self.selected = StringVar()
+        self.selected.set('English')
+        self.english_radiobutton = Radiobutton(self.selection_frame, text = 'English', value = 'English',
+                                 variable = self.selected)
+        self.latin_radiobutton = Radiobutton(self.selection_frame, text = 'Latin', value = 'Latin',
+                                 variable = self.selected)
+        
+        # FIXME: Temporary implementation of the option menus and selection system
+        # Creates the option menus in selection_frame
+        self.classes = ['Warlock', 'Wizard']
+        self.chosen_class = StringVar()
+        self.chosen_class.set(self.classes[0])
+        self.class_select_om = OptionMenu(self.selection_frame, self.chosen_class, *self.classes)
+        
+        self.spell_levels = ['Cantrip', '1st Level', '2nd Level']
+        self.chosen_level = StringVar()
+        self.chosen_level.set(self.spell_levels[0])
+        self.level_select_om = OptionMenu(self.selection_frame, self.chosen_level, *self.spell_levels,
+                                          command = self.spell_level_choice)
+        
+        self.eng_second_level = ['Darkness']
+        self.chosen_eng_spell = StringVar()
+        self.chosen_eng_spell.set(self.eng_second_level[0])
+        self.eng_second_level_om = OptionMenu(self.selection_frame, self.chosen_eng_spell,
+                                              *self.eng_second_level)
+        
+        self.eng_first_level = ['Illusory Script']
+        self.chosen_eng_spell = StringVar()
+        self.chosen_eng_spell.set(self.eng_first_level[0])
+        self.eng_first_level_om = OptionMenu(self.selection_frame, self.chosen_eng_spell,
+                                             *self.eng_first_level)
+        
+        self.eng_cantrips = ['Eldritch Blast', 'Minor Illusion']
+        self.chosen_eng_spell = StringVar()
+        self.chosen_eng_spell.set(self.eng_cantrips[0])
+        self.eng_cantrip_om = OptionMenu(self.selection_frame, self.chosen_eng_spell, *self.eng_cantrips)
+        
+        # TODO: Implement Latin to English support
+        # self.lat_cantrips = ['Dryegnum Missilis', 'Parvus Illūsiō']
+        # self.chosen_lat_spell = StringVar()
+        # self.chosen_lat_spell.set(self.lat_cantrips[0])
+        # self.lat_cantrip_om = OptionMenu(self.selection_frame, self.chosen_lat_spell, *self.lat_cantrips)
+        
+        # self.lat_first_level = ['Vānum Scrīptum']
+        # self.chosen_lat_spell = StringVar()
+        # self.chosen_lat_spell.set(self.lat_first_level[0])
+        # self.lat_first_level_om = OptionMenu(self.selection_frame, self.chosen_lat_spell,
+        #                                      *self.lat_first_level)
+        
+        # self.lat_second_level = ['Cālīgō']
+        # self.chosen_lat_spell = StringVar()
+        # self.chosen_lat_spell.set(self.lat_second_level[0])
+        # self.lat_second_level_om = OptionMenu(self.selection_frame, self.chosen_lat_spell,
+        #                                       *self.lat_second_level)
+        
+        # Packs title_label in title_frame
+        self.title_label.pack()
+        
+        # Packs translation_label in translation_frame
+        self.translation_label.pack()
+        
+        # Puts the button, radio buttons, and option menus in selection_frame with grid
+        self.translate_button.grid(row = 1, column = 2, padx = 2, pady = 5)
+        self.english_radiobutton.grid(row = 0, column = 0, pady = 5)
+        self.latin_radiobutton.grid(row = 0, column = 2, pady = 5)
+        self.class_select_om.grid(row = 0, column = 1, padx = 2, pady = 5)
+        self.level_select_om.grid(row = 1, column = 0, padx = 2, pady = 5)
+        self.eng_cantrip_om.grid(row = 1, column = 1, padx = 2, pady = 5)
+        
+        # Packs the frames to the main window
+        self.title_frame.pack()
+        self.selection_frame.pack()
+        self.translation_frame.pack()
+    
+    # TODO: Implement non-hardcoded version of clicked_translate
+    def clicked_translate(self) -> None:
+        """
+        Takes the chosen spell and projects its translation onto the frame.
+        """
+        spell: str = self.chosen_eng_spell.get()
+        
+        # FIXME: Herdcoded. Add proper implementation.
+        #        Also, have it display special characters properly
+        if spell == 'Darkness':
+            self.translation_label.config(text = 'Darkness in Latin is: Caligo')
+        elif spell == 'Illusory Script':
+            self.translation_label.config(text = 'Illusory Script in Latin is: Vanum Scriptum')
+        elif spell == 'Eldritch Blast':
+            self.translation_label.config(text = 'Eldritch Blast in Latin is: Dryegnum Missilis')
+        elif spell == 'Minor Illusion':
+            self.translation_label.config(text = 'Minor Illusion in Latin is: Parvus Illusio')
+    
+    def spell_level_choice(self, x = '') -> None:
+        """
+        Sets the OptionMenu to the chosen level.
+        
+        :param x: I honestly don't know why this is here or why it works, but it's required for the
+                  implementation to work properly. Don't touch it, or it may break the function.
+        """
+        level: str = self.chosen_level.get()
+        
+        # FIXME: Instead of forgetting and adding back to the grid, have it actually change the values
+        #        in a single option menu
+        self.eng_cantrip_om.grid_forget()
+        self.eng_first_level_om.grid_forget()
+        self.eng_second_level_om.grid_forget()
+        if level == 'Cantrip':
+            self.eng_cantrip_om.grid(row = 1, column = 1, padx = 2, pady = 5)
+            self.chosen_eng_spell.set(self.eng_cantrips[0])
+        elif level == '1st Level':
+            self.eng_first_level_om.grid(row = 1, column = 1, padx = 2, pady = 5)
+            self.chosen_eng_spell.set(self.eng_first_level[0])
+        elif level == '2nd Level':
+            self.eng_second_level_om.grid(row = 1, column = 1, padx = 2, pady = 5)
+            self.chosen_eng_spell.set(self.eng_second_level[0])
+    
+    def start(self) -> None:
+        """
+        Engages the loop to open and keep the window on.
+        """
+        self.window.mainloop()
 
-print('\n\nChoose a spell level:')
-print('_________________________')
-spell_level_selection = input('Cantrip - 0\n1st Level - 1\n2nd Level - 2\nSpell Level: ')
-while True:
-    if spell_level_selection == '0' or spell_level_selection == 'Cantrip':
-        spell_level_selection = 'Cantrip'
-        break
-    elif spell_level_selection == '1' or spell_level_selection == '1st Level':
-        spell_level_selection = '1st Level'
-        break
-    elif spell_level_selection == '2' or spell_level_selection == '2nd Level':
-        spell_level_selection = '2nd Level'
-        break
-    else:
-        spell_level_selection = input('\nInvalid input. Choose one of the given options.\n')
-
-print('\n\nChoose a spell:')
-print('_________________________')
-spells_dict_travel = spells['English'][class_selection][spell_level_selection]
-for pos, val in enumerate(spells_dict_travel):
-    print(f'{val} - {pos}\n')
-
-spell_selection = input('Spell: ')
-loop = True
-while loop:
-    for i in range(pos + 1):
-        if spell_selection == f'{i}' or spell_selection == f'{spells_dict_travel[i]}':
-            spell_selection = i
-            loop = False
-            break
-    if loop:
-        spell_selection = input('\nInvalid input. Choose one of the given options.\n')
-    else:
-        break
-
-print('\n\nChosen spell in Latin:')
-print('_________________________')
-print(spells['Latin'][class_selection][spell_level_selection][spell_selection])
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    DndEnLaSpellDict().start()
